@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { ToastContainer } from 'react-toastify';
 import './app.css';
@@ -17,76 +17,73 @@ const Status = {
   REJECTED: 'rejected',
 };
 
-class App extends Component {
-  state = {
-    error: null,
-    status: 'idle',
-    requestKey: '',
-    page: 1,
-    images: [],
+export default function App() {
+  const [error, setError] = useState(null);
+  const [status, setStatus] = useState(Status.IDLE);
+  const [requestKey, setRequestKey] = useState('');
+  const [page, setPage] = useState(1);
+  const [images, setImages] = useState([]);
+
+  const handleFormSubmit = newRequestKey => {
+    setRequestKey(newRequestKey);
+    setPage(1);
+    setImages([]);
   };
 
-  static propTypes = {
-    requestKey: PropTypes.string.isRequired,
-    page: PropTypes.number.isRequired,
-    images: PropTypes.array.isRequired,
-  };
-
-  handleFormSubmit = newRequestKey => {
-    this.setState({ requestKey: newRequestKey, page: 1, images: [] });
-  };
-
-  componentDidUpdate(prevProps, prevState) {
-    const prevName = prevState.requestKey;
-    const nextName = this.state.requestKey;
-
-    if (prevName !== nextName) {
-      this.renderImages();
+  useEffect(() => {
+    if (!requestKey) {
+      return;
     }
-  }
 
-  renderImages = () => {
-    const { requestKey, page } = this.state;
+    const renderImages = () => {
+      setStatus(Status.PENDING);
 
-    pixabayApi
-      .fetchImages(requestKey, page)
-      .then(response =>
-        this.setState(prevState => ({
-          images: [...prevState.images, ...response.hits],
-          page: prevState.page + 1,
-        })),
-      )
-      .catch(error => this.setState({ error, status: Status.REJECTED }))
-      .finally(() => this.setState({ status: Status.RESOLVED }));
+      pixabayApi
+        .fetchImages(requestKey, page)
+        .then(response =>
+          setImages(prevState => [...prevState, ...response.hits]),
+        )
+        .catch(error => {
+          setError(error);
+          setStatus(Status.REJECTED);
+        })
+        .finally(() => setStatus(Status.RESOLVED));
+    };
+
+    renderImages();
+  }, [requestKey, page]);
+
+  const onLoadMore = () => {
+    setPage(prevState => prevState + 1);
   };
 
-  render() {
-    const { status, error } = this.state;
+  return (
+    <>
+      <Searchbar onSubmit={handleFormSubmit}></Searchbar>
+      <ToastContainer autoClose={3000} />
 
-    return (
-      <>
-        <Searchbar onSubmit={this.handleFormSubmit}></Searchbar>
-        <ToastContainer autoClose={3000} />
+      {status === Status.IDLE && (
+        <p className="welcomeText">Please enter your search term</p>
+      )}
 
-        {status === Status.IDLE && (
-          <p className="welcomeText">Please enter your search term</p>
-        )}
+      {status === Status.PENDING && <ImagePendingView />}
 
-        {status === Status.PENDING && <ImagePendingView />}
+      {status === Status.REJECTED && (
+        <ImagesErrorView message={error.message} />
+      )}
 
-        {status === Status.REJECTED && (
-          <ImagesErrorView message={error.message} />
-        )}
-
-        {status === Status.RESOLVED && (
-          <>
-            <ImageGallery images={this.state.images} />
-            <Button onClick={this.renderImages} />
-          </>
-        )}
-      </>
-    );
-  }
+      {status === Status.RESOLVED && (
+        <>
+          <ImageGallery images={images} />
+          <Button onClick={onLoadMore} />
+        </>
+      )}
+    </>
+  );
 }
 
-export default App;
+App.propTypes = {
+  requestKey: PropTypes.string,
+  page: PropTypes.number,
+  images: PropTypes.array,
+};

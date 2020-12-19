@@ -1,15 +1,15 @@
 import PropTypes from 'prop-types';
 import ImageGalleryItem from '../ImageGalleryItem';
 
-function ImageGallery({ images }) {
+export default function ImageGallery({ images }) {
   return (
     <ul className="ImageGallery">
-      {images.map((image) => (
+      {images.map(({ webformatURL, tags, largeImageURL, id }) => (
         <ImageGalleryItem
-          src={image.webformatURL}
-          alt={image.tags}
-          largeImageUrl={image.largeImageURL}
-          key={image.id}
+          src={webformatURL}
+          alt={tags}
+          largeImageUrl={largeImageURL}
+          key={id}
         />
       ))}
     </ul>
@@ -19,5 +19,3 @@ function ImageGallery({ images }) {
 ImageGallery.propTypes = {
   images: PropTypes.array.isRequired,
 };
-
-export default ImageGallery;
