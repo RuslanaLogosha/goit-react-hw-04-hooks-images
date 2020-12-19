@@ -25,6 +25,9 @@ export default function App() {
   const [images, setImages] = useState([]);
 
   const handleFormSubmit = newRequestKey => {
+    if (newRequestKey === requestKey) {
+      return;
+    }
     setRequestKey(newRequestKey);
     setPage(1);
     setImages([]);
