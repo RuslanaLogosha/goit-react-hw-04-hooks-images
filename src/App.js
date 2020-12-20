@@ -1,11 +1,14 @@
 import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { ToastContainer } from 'react-toastify';
+import Loader from 'react-loader-spinner';
+import 'react-loader-spinner/dist/loader/css/react-spinner-loader.css';
 import './app.css';
+import { animateScroll as scroll } from 'react-scroll';
 
 import pixabayApi from './components/pixabay-api';
 import ImagesErrorView from './components/ImagesErrorView';
-import ImagePendingView from './components/ImagePendingView';
+// import ImagePendingView from './components/ImagePendingView';
 import ImageGallery from './components/ImageGallery';
 import Button from './components/Button';
 import Searchbar from './components/Searchbar';
@@ -54,6 +57,7 @@ export default function App() {
     };
 
     renderImages();
+    scroll.scrollToBottom();
   }, [requestKey, page]);
 
   const onLoadMore = () => {
@@ -69,17 +73,26 @@ export default function App() {
         <p className="welcomeText">Please enter your search term</p>
       )}
 
-      {status === Status.PENDING && <ImagePendingView />}
-
       {status === Status.REJECTED && (
         <ImagesErrorView message={error.message} />
       )}
 
-      {status === Status.RESOLVED && (
+      {images.length > 0 && status === Status.RESOLVED && (
         <>
           <ImageGallery images={images} />
           <Button onClick={onLoadMore} />
         </>
+      )}
+
+      {status === Status.PENDING && (
+        <Loader
+          style={{ textAlign: 'center' }}
+          className="Loader"
+          type="ThreeDots"
+          color="#303f9f"
+          height={50}
+          width={50}
+        />
       )}
     </>
   );

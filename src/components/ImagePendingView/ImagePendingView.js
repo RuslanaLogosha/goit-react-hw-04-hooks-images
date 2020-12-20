@@ -6,8 +6,9 @@ class ImagePendingView extends Component {
   render() {
     return (
       <Loader
+        style={{ textAlign: 'center' }}
         className="Loader"
-        type="Oval"
+        type="ThreeDots"
         color="#303f9f"
         height={50}
         width={50}
