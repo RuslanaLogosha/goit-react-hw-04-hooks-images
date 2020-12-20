@@ -6,7 +6,7 @@ import 'react-loader-spinner/dist/loader/css/react-spinner-loader.css';
 import './app.css';
 import { animateScroll as scroll } from 'react-scroll';
 
-import pixabayApi from './components/pixabay-api';
+import pixabayApi from './services/pixabay-api';
 import ImagesErrorView from './components/ImagesErrorView';
 // import ImagePendingView from './components/ImagePendingView';
 import ImageGallery from './components/ImageGallery';
@@ -47,7 +47,7 @@ export default function App() {
       pixabayApi
         .fetchImages(requestKey, page)
         .then(response =>
-          setImages(prevState => [...prevState, ...response.hits]),
+          setImages(prevState => [...prevState, ...response.data.hits]),
         )
         .catch(error => {
           setError(error);
