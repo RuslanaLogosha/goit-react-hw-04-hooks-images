@@ -46,9 +46,7 @@ export default function App() {
 
       pixabayApi
         .fetchImages(requestKey, page)
-        .then(response =>
-          setImages(prevState => [...prevState, ...response.data.hits]),
-        )
+        .then(images => setImages(prevState => [...prevState, ...images]))
         .catch(error => {
           setError(error);
           setStatus(Status.REJECTED);
