@@ -68,21 +68,15 @@ export default function App() {
     <>
       <Searchbar onSubmit={handleFormSubmit}></Searchbar>
       <ToastContainer autoClose={3000} />
-
       {status === Status.IDLE && (
         <p className="welcomeText">Please enter your search term</p>
       )}
-
       {status === Status.REJECTED && (
         <ImagesErrorView message={error.message} />
       )}
+      {images.length > 0 && <ImageGallery images={images} />}
 
-      {images.length > 0 && status === Status.RESOLVED && (
-        <>
-          <ImageGallery images={images} />
-          <Button onClick={onLoadMore} />
-        </>
-      )}
+      {status === Status.RESOLVED && <Button onClick={onLoadMore} />}
 
       {status === Status.PENDING && (
         <Loader
